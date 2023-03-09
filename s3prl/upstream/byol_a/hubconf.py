@@ -6,11 +6,14 @@
 #   Copyright    [ Copyleft(c), Speech Lab, NTU, Taiwan ]
 """*********************************************************************************************"""
 
+import logging
 from pathlib import Path as _Path
 
 from s3prl.util.download import _urls_to_filepaths
 
 from .expert import UpstreamExpert as _UpstreamExpert
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_CONFIG_PATH = _Path(__file__).parent / "config.yaml"
 
@@ -33,11 +36,11 @@ def byol_a(refresh=False, *args, **kwargs):
     """
     assert 'ckpt' in kwargs, '*** Please maks sure to set "-k your-checkpoint.pth,dataset-mean,dataset-std".'
     if kwargs['ckpt'] is None:
-        print('Set "-k your-checkpoint.pth,norm_mean,norm_std". Exit now.')
+        logger.error('Set "-k your-checkpoint.pth,norm_mean,norm_std". Exit now.')
         exit(-1)
     ckpt, norm_mean, norm_std = kwargs['ckpt'].split(',')
     kwargs['ckpt'] = ckpt
     norm_mean, norm_std = float(norm_mean), float(norm_std)
-    print(' using checkpoint:', ckpt)
-    print(' normalization statistics:', norm_mean, norm_std)
+    logger.info(f' using checkpoint: {ckpt}')
+    logger.info(f' normalization statistics: {norm_mean}, {norm_std}')
     return _byol_a(*args, norm_mean=norm_mean, norm_std=norm_std, **kwargs)

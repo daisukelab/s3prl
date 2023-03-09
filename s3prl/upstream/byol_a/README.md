@@ -18,14 +18,7 @@ Download the weight from the links below.
 - 1024-d feature: https://github.com/nttcslab/byol-a/raw/master/pretrained_weights/AudioNTT2020-BYOLA-64x96d1024.pth
 - 512-d feature: https://github.com/nttcslab/byol-a/raw/master/pretrained_weights/AudioNTT2020-BYOLA-64x96d512.pth
 
-### 1. Configuring the number of feature dimensions
-
-Edit your `config.yaml` to match your weight.
-
-    # Dimensions of feature representations.
-    feature_d: 2048
-
-### 2. Pre-computing statistics
+### 1. Pre-computing statistics
 
 This is required for each downstream task. Once you have done this, you do not need to calculate again; keep the calculated statistics for the task.
 The followings is an example for `voxceleb1`.
@@ -40,7 +33,7 @@ This will output:
 
 These `-8.907230377197266` and `4.892485618591309` are the statistics for the `voxceleb1`.
 
-### 3. Training and testing
+### 2. Training and testing
 
 The followings is an example for `voxceleb1`.
 

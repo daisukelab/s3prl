@@ -22,6 +22,8 @@ import yaml
 from torch import nn
 import nnAudio.features
 
+logger = logging.getLogger(__name__)
+
 
 class LogMelSpectrogram:
     def __init__(self):
@@ -367,8 +369,8 @@ class RunningNorm(nn.Module):
             self.std = torch.clamp(self.ema_var.std(), torch.finfo().eps, torch.finfo().max)
         elif not self.reported:
             self.reported = True
-            print(f'*** Running Norm has finished updates over {self.max_update} times, using the following stats from now on. ***\n  mean,std={float(self.mean.view(-1))},{float(self.std.view(-1))}\n')
-            print(f'*** Please use these statistics in your BYOL-A. EXIT... ***\n')
+            logger.info(f'\n*** Running Norm has finished updates over {self.max_update} times, using the following stats from now on. ***\n  mean={float(self.mean.view(-1))}, std={float(self.std.view(-1))}')
+            logger.info(f'*** Please use these statistics in your model. EXIT... ***\n')
             exit(-1)
         return ((image - self.mean) / self.std)
 

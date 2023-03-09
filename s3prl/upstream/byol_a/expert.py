@@ -13,7 +13,7 @@ import torch
 import torch.nn as nn
 from torch.nn.utils.rnn import pad_sequence
 
-from .byol_a import load_yaml_config, LogMelSpectrogram, RunningNorm, AudioNTT2020Task6X
+from .byol_a import LogMelSpectrogram, RunningNorm, AudioNTT2020Task6X
 
 logger = logging.getLogger(__name__)
 
@@ -33,21 +33,22 @@ class UpstreamExpert(nn.Module):
         norm_std: float = None,  # The same as above.
     ):
         super().__init__()
-        config = load_yaml_config(model_config)
+        weight = torch.load(ckpt)
+        n_mels, feature_d = weight['features.0.weight'].shape[0], weight['fc.3.weight'].shape[-1]
 
         # Preprocessor and normalizer.
         self.to_logmelspec = LogMelSpectrogram()
         if norm_mean is None or norm_std is None:
-            print('  ** CAUTION **')
-            print('  This is a run for calculating statistics of the downstream task using RunningNorm and will exit in the middle of training. **')
-            print('  ** CAUTION **')
+            logger.warn('  ** CAUTION **')
+            logger.warn('  This is a run for calculating statistics of the downstream task using RunningNorm and will exit in the middle of training. **')
+            logger.warn('  ** CAUTION **')
             self.normalizer = RunningNorm(epoch_samples=10_000, max_update_epochs=1, axis=[0, 1, 2]) # Use single scalar mean/std values.
         else:
-            print(f'*** Using normalization statistics: mean={norm_mean}, std={norm_std} ***')
+            logger.info(f'*** Using normalization statistics: mean={norm_mean}, std={norm_std} ***')
             self.normalizer = lambda x: (x - norm_mean) / norm_std
 
         # Load pretrained weights.
-        self.model = AudioNTT2020Task6X(d=config.feature_d, n_mels=config.n_mels)
+        self.model = AudioNTT2020Task6X(d=feature_d, n_mels=n_mels)
         self.model.load_weight(ckpt, device='cpu')
 
     # Interface
